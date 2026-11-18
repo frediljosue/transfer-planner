@@ -108,7 +108,7 @@ var TONE={"In progress":"info","Brainstorming":"info","Drafting":"info","Eligibl
 var DEF_REQS=["Application form","Application fee or fee waiver","College transcripts","Essays","Recommendation letters","Test scores, if required","Financial aid forms","Transfer credit evaluation"];
 var DEF_DOCS=["Official transcripts","Unofficial transcripts","College transcripts","High school transcripts","Resume","Personal statement","Transfer essays","Recommendation letters","Financial aid documents","Proof of residency, if required","Test scores, if required","Other supporting documents"];
 var DEF_AID=["FAFSA","CSS Profile, if required","Institutional financial aid applications","Application fee waivers","Financial aid award letters"];
-var NAV=[["overview","Overview","M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],["universities","Universities","M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"],["scholarships","Scholarships","M12 3a5 5 0 100 10 5 5 0 000-10zM9 13.5L8 21l4-2 4 2-1-7.5"],["documents","Documents","M6 3h8l4 4v14H6zM14 3v4h4"],["essays","Essays","M4 20l1-4L16 5l3 3L8 19z"],["aid","Financial Aid","M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v10M15 9.5c0-1-1.3-1.8-3-1.8s-3 .8-3 1.8 1.3 1.6 3 2 3 1 3 2-1.3 1.8-3 1.8-3-.8-3-1.8"],["tasks","Tasks & Deadlines","M4 5h16v14H4zM8 12l3 3 5-6"],["profile","My Profile","M12 4a4 4 0 100 8 4 4 0 000-8zM5 20c0-4 3-6 7-6s7 2 7 6"]];
+var NAV=[["overview","Overview","M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],["universities","Universities","M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"],["scholarships","Scholarships","M12 3a5 5 0 100 10 5 5 0 000-10zM9 13.5L8 21l4-2 4 2-1-7.5"],["documents","Documents","M6 3h8l4 4v14H6zM14 3v4h4"],["essays","Essays","M4 20l1-4L16 5l3 3L8 19z"],["aid","Financial Aid","M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v10M15 9.5c0-1-1.3-1.8-3-1.8s-3 .8-3 1.8 1.3 1.6 3 2 3 1 3 2-1.3 1.8-3 1.8-3-.8-3-1.8"],["tasks","Tasks & Deadlines","M4 5h16v14H4zM8 12l3 3 5-6"],["calendar","Calendar","M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"],["profile","My Profile","M12 4a4 4 0 100 8 4 4 0 000-8zM5 20c0-4 3-6 7-6s7 2 7 6"]];
 
 function uid(){return Math.random().toString(36).slice(2,9)}
 function clone(x){return JSON.parse(JSON.stringify(x))}
@@ -158,11 +158,11 @@ function words(t){t=(t||"").trim();return t?t.split(/\s+/).length:0}
 /* ---------- derived data ---------- */
 function progress(u){var t=u.reqs.length,d=u.reqs.filter(function(r){return r.d}).length;return{t:t,d:d,p:t?Math.round(d*100/t):0}}
 function allDeadlines(){var o=[];
-  S.unis.forEach(function(u){if(u.deadline)o.push({d:u.deadline,label:nm(u)+" application",kind:"University",v:"universities",done:u.status!=="Not started"&&u.status!=="In progress"})});
-  S.schol.forEach(function(x){if(x.deadline)o.push({d:x.deadline,label:nm(x,"Scholarship"),kind:"Scholarship",v:"scholarships",done:["Submitted","Awarded","Not eligible"].indexOf(x.status)>=0})});
-  S.essays.forEach(function(x){if(x.due)o.push({d:x.due,label:owner(x)+" essay",kind:"Essay",v:"essays",done:x.s==="Completed"})});
-  S.aid.forEach(function(x){if(x.due)o.push({d:x.due,label:x.n+(x.uni?" for "+x.uni:""),kind:"Financial aid",v:"aid",done:x.s==="Submitted"||x.s==="Received"})});
-  S.tasks.forEach(function(x){if(x.due)o.push({d:x.due,label:x.t||"Task",kind:"Task",v:"tasks",done:!!x.done})});
+  S.unis.forEach(function(u){if(u.deadline)o.push({id:u.id,d:u.deadline,label:nm(u)+" application",kind:"University",v:"universities",done:u.status!=="Not started"&&u.status!=="In progress"})});
+  S.schol.forEach(function(x){if(x.deadline)o.push({id:x.id,d:x.deadline,label:nm(x,"Scholarship"),kind:"Scholarship",v:"scholarships",done:["Submitted","Awarded","Not eligible"].indexOf(x.status)>=0})});
+  S.essays.forEach(function(x){if(x.due)o.push({id:x.id,d:x.due,label:owner(x)+" essay",kind:"Essay",v:"essays",done:x.s==="Completed"})});
+  S.aid.forEach(function(x){if(x.due)o.push({id:x.id,d:x.due,label:x.n+(x.uni?" for "+x.uni:""),kind:"Financial aid",v:"aid",done:x.s==="Submitted"||x.s==="Received"})});
+  S.tasks.forEach(function(x){if(x.due)o.push({id:x.id,d:x.due,label:x.t||"Task",kind:"Task",v:"tasks",done:!!x.done})});
   return o.sort(byDate)}
 function overdueCount(){return allDeadlines().filter(function(x){return!x.done&&days(x.d)<0}).length}
 function relOptions(){return["None"].concat(S.unis.map(function(u){return nm(u,"University")}),S.schol.map(function(x){return nm(x,"Scholarship")}))}
@@ -171,6 +171,10 @@ function relOptions(){return["None"].concat(S.unis.map(function(u){return nm(u,"
 function head(title,sub,right){return h("div",{class:"head"},h("div",null,h("h1",null,title),sub&&h("p",{class:"mute"},sub)),right)}
 function empty(title,text,btn){return h("div",{class:"card empty"},h("b",null,title),h("p",null,text),btn&&h("p",{style:"margin-top:12px"},btn))}
 function go(v){location.hash=v}
+function saveFile(name,text,out,type){(window.claude&&claude.use?claude.use("downloads"):Promise.resolve(null)).then(function(dl){
+    if(dl)return dl.save({filename:name,data:text}).then(function(){toast("Saved "+name)});
+    var u=URL.createObjectURL(new Blob([text],{type:type||"text/plain"})),a=h("a",{href:u,download:name});document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast("Downloaded "+name)})
+  .catch(function(e){out.textContent="";if(e&&e.code==="declined")return;var t=h("textarea",{rows:8,readonly:true,"aria-label":"Copy this text"});t.value=text;out.append(h("p",{class:"mute sm"},"Downloads are not available here. Copy this text and save it in a file named "+name+"."),t);t.select()})}
 function dlRow(x){var a=h("a",{class:"link",href:"#"+x.v},"Open");return h("div",{class:"dl"},h("div",{class:"w"},h("b",null,x.label),h("span",null,x.kind+" · "+fmt(x.d))),h("span",{class:"pill "+dtone(x.d,x.done)},rel(x.d)),a)}
 
 function vOverview(){var m=h("div",{class:"list"});window.__lo=LOCAL_ONLY;
@@ -341,10 +345,7 @@ function vProfile(){var m=h("div",{class:"list"});m.append(head("My Profile","Yo
   var p=S.profile;m.append(h("div",{class:"card pad"},h("div",{class:"fields"},tin(p,"major","Intended major",{ph:"For example, Biology"}),tin(p,"gpa","Current GPA",{ph:"For example, 3.5"}),tin(p,"school","Current institution",{ph:"Your college"}),tin(p,"pathway","Academic pathway",{ph:"For example, Associate's degree"}),tin(p,"level","Current academic level",{ph:"For example, Sophomore"}),tin(p,"goal","Transfer goal",{ph:"For example, Fall 2028"}),ta(p,"interests","Academic interests",{rows:2,ph:"What you want to study"}),ta(p,"career","Career goal",{rows:3,ph:"What you want to do after you graduate"}))));
   var b=h("div",{class:"card pad list"},h("h2",null,"Backup"),h("p",{class:"mute sm"},LOCAL_ONLY?"Your changes are saved automatically, but only in this browser on this device. Clearing your browser data erases them and other devices will not see them. Download a backup now and then, and restore it here or on another device.":"Your changes are saved automatically. Download a copy any time, or restore one."));
   var out=h("div",{class:"list"});
-  var give=function(name,text){(window.claude&&claude.use?claude.use("downloads"):Promise.resolve(null)).then(function(dl){
-      if(dl)return dl.save({filename:name,data:text}).then(function(){toast("Saved "+name)});
-      var u=URL.createObjectURL(new Blob([text],{type:"text/plain"})),a=h("a",{href:u,download:name});document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast("Downloaded "+name)})
-    .catch(function(e){out.textContent="";if(e&&e.code==="declined")return;var t=h("textarea",{rows:8,readonly:true,"aria-label":"Copy this text"});t.value=text;out.append(h("p",{class:"mute sm"},"Downloads are not available here. Copy this text and save it in a file named "+name+"."),t);t.select()})};
+  var give=function(n,t){saveFile(n,t,out)};
   b.append(h("div",{class:"row"},h("button",{onclick:function(){give("transfer-planner-"+today()+".json",JSON.stringify(S,null,2))}},"Export JSON"),h("button",{onclick:function(){give("transfer-planner-"+today()+".csv",toCsv())}},"Export CSV"),
     (function(){var f=h("input",{type:"file",accept:".json,application/json",id:"imp",hidden:true,"aria-label":"Import JSON backup"});f.onchange=function(){var file=f.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||typeof d!=="object"||!Array.isArray(d.unis))throw 0;S=norm(d);save();render();toast("Backup restored")}catch(e){toast("That file is not a valid backup")}};r.readAsText(file)};
       var bt=h("button",{onclick:function(){f.click()}},"Import JSON");return h("span",null,bt,f)})()),out);
@@ -371,7 +372,61 @@ function toCsv(){var rows=[["Type","Name","Related","Status","Deadline","Amount"
   S.unis.forEach(function(u){var c=u.cost||{};if(c.tuition||c.other||c.grants)rows.push(["Cost estimate",nm(u),"","","",(+c.tuition||0)+(+c.other||0)-(+c.grants||0),"Tuition "+(c.tuition||0)+", other "+(c.other||0)+", grants "+(c.grants||0)])});
   return rows.map(function(r){return r.map(function(v){v=v==null?"":String(v);if(/^[=+\-@]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}).join(",")}).join("\r\n")}
 
-var VIEWS={overview:vOverview,universities:vUnis,scholarships:vSchol,documents:vDocs,essays:vEssays,aid:vAid,tasks:vTasks,profile:vProfile};
+
+/* ---------- calendar ---------- */
+var CAL={y:0,m:0,sel:"",rem:"1",all:false},KC={University:"var(--accent)",Scholarship:"var(--good)",Essay:"#8f63d9","Financial aid":"var(--warn)",Task:"var(--mute)"};
+var MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function p2(n){return(n<10?"0":"")+n}
+function iso(y,m,d){return y+"-"+p2(m+1)+"-"+p2(d)}
+function nextDay(d){var t=new Date(d+"T00:00:00Z");t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10)}
+function calItems(){return allDeadlines().filter(function(x){return/^\d{4}-\d{2}-\d{2}$/.test(x.d)})}
+function gcal(x){return"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(x.kind+": "+x.label)+"&dates="+x.d.replace(/-/g,"")+"/"+nextDay(x.d).replace(/-/g,"")+"&details="+encodeURIComponent("From Transfer Planner")}
+function icsEsc(t){return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n")}
+// shortcut: folds by characters, not bytes, so very long non-English titles may exceed 75 bytes; fine for calendars in practice
+function fold(l){var o="";while(l.length>60){o+=l.slice(0,60)+"\r\n ";l=l.slice(60)}return o+l}
+function toIcs(items,rem){var now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Transfer Planner//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Transfer deadlines"];
+  var tr=rem==="7"?["-P6DT15H","-PT15H"]:rem==="1"?["-PT15H"]:[];
+  items.forEach(function(x){L.push("BEGIN:VEVENT","UID:"+x.kind.replace(/\s/g,"")+"-"+(x.id||x.label.replace(/\W/g,""))+"@transfer-planner","DTSTAMP:"+now,"DTSTART;VALUE=DATE:"+x.d.replace(/-/g,""),"DTEND;VALUE=DATE:"+nextDay(x.d).replace(/-/g,""),"SUMMARY:"+icsEsc(x.kind+": "+x.label),"DESCRIPTION:"+icsEsc("From Transfer Planner."+(x.done?" Marked done.":"")),"TRANSP:TRANSPARENT");
+    tr.forEach(function(t){L.push("BEGIN:VALARM","TRIGGER:"+t,"ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.label),"END:VALARM")});L.push("END:VEVENT")});
+  L.push("END:VCALENDAR");return L.map(fold).join("\r\n")+"\r\n"}
+function vCalendar(){var m=h("div",{class:"list"});
+  if(!CAL.y){var n=new Date();CAL.y=n.getFullYear();CAL.m=n.getMonth()}
+  var items=calItems(),by={};items.forEach(function(x){(by[x.d]=by[x.d]||[]).push(x)});
+  var shift=function(k){CAL.m+=k;if(CAL.m<0){CAL.m=11;CAL.y--}if(CAL.m>11){CAL.m=0;CAL.y++}CAL.sel="";render()};
+  m.append(head("Calendar","Every deadline in one place.",h("div",{class:"row"},h("button",{onclick:function(){shift(-1)},"aria-label":"Previous month"},"‹"),h("button",{onclick:function(){var n=new Date();CAL.y=n.getFullYear();CAL.m=n.getMonth();CAL.sel=today();render()}},"Today"),h("button",{onclick:function(){shift(1)},"aria-label":"Next month"},"›"))));
+  var first=new Date(CAL.y,CAL.m,1).getDay(),dim=new Date(CAL.y,CAL.m+1,0).getDate(),g=h("div",{style:"display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px"});
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(w){g.append(h("div",{class:"mute sm",style:"text-align:center;font-weight:600;padding:2px 0"},w))});
+  for(var i=0;i<first;i++)g.append(h("div"));
+  for(var d=1;d<=dim;d++)(function(d){var k=iso(CAL.y,CAL.m,d),L=by[k]||[],dots=h("span",{style:"display:flex;gap:3px;justify-content:center;min-height:8px;flex-wrap:wrap"});
+    L.slice(0,4).forEach(function(x){dots.append(h("i",{style:"width:7px;height:7px;border-radius:50%;background:"+KC[x.kind]+(x.done?";opacity:.35":"")}))});
+    var late=L.some(function(x){return!x.done&&days(x.d)<0});
+    g.append(h("button",{type:"button","aria-pressed":String(CAL.sel===k),"aria-label":MONTHS[CAL.m]+" "+d+", "+(L.length?L.length+" deadline"+(L.length>1?"s":""):"no deadlines"),
+      style:"display:flex;flex-direction:column;gap:4px;align-items:center;padding:8px 2px;min-height:56px;border-radius:10px;"+(k===today()?"border:2px solid var(--accent);":"")+(CAL.sel===k?"background:var(--accent-soft);":""),
+      onclick:function(){CAL.sel=CAL.sel===k?"":k;render()}},h("b",{style:"font-weight:"+(L.length?700:500)+(late?";color:var(--bad)":"")},d),dots))})(d);
+  var leg=h("div",{class:"row sm mute",style:"gap:6px 14px"});Object.keys(KC).forEach(function(k){leg.append(h("span",{style:"display:inline-flex;align-items:center;gap:5px"},h("i",{style:"width:8px;height:8px;border-radius:50%;background:"+KC[k]}),k))});
+  m.append(h("div",{class:"card pad list"},h("h2",null,MONTHS[CAL.m]+" "+CAL.y),g,leg));
+  var pre=CAL.y+"-"+p2(CAL.m+1)+"-",shown=CAL.sel?items.filter(function(x){return x.d===CAL.sel}):items.filter(function(x){return x.d.indexOf(pre)===0});
+  var lst=h("div",{class:"card pad"},h("div",{class:"row spread"},h("h2",null,CAL.sel?fmt(CAL.sel):"Deadlines in "+MONTHS[CAL.m]),CAL.sel?h("button",{class:"sm",onclick:function(){CAL.sel="";render()}},"Show whole month"):null));
+  if(!shown.length)lst.append(h("p",{class:"mute",style:"padding:10px 0"},items.length?"No deadlines here.":"Add a deadline to a university, scholarship, essay, aid item or task and it appears here."));
+  shown.forEach(function(x){lst.append(h("div",{class:"dl",style:x.done?"opacity:.6":""},h("i",{style:"width:9px;height:9px;border-radius:50%;flex:none;background:"+KC[x.kind]}),h("div",{class:"w"},h("b",null,x.label),h("span",null,x.kind+" · "+fmt(x.d)+(x.done?" · done":""))),h("span",{class:"pill "+dtone(x.d,x.done)},rel(x.d)),h("a",{class:"link",href:"#"+x.v},"Open"),h("a",{class:"link",href:gcal(x),target:"_blank",rel:"noopener"},"Add to Google")))});
+  m.append(lst);
+  var out=h("div",{class:"list"}),chip=function(key,v,label){return h("button",{class:"chip",type:"button","aria-pressed":String(CAL[key]===v),onclick:function(){CAL[key]=v;render()}},label)};
+  var n=items.filter(function(x){return CAL.all||!x.done}).length;
+  m.append(h("div",{class:"card pad list"},h("h2",null,"Put these deadlines in your phone or Google Calendar"),
+    h("p",{class:"mute sm"},"Download one calendar file with every deadline, then add it to any calendar app. Each deadline becomes an all day event."),
+    h("div",{class:"list"},h("h3",null,"Reminders"),h("div",{class:"chips"},chip("rem","1","1 day before"),chip("rem","7","1 week and 1 day before"),chip("rem","0","None"))),
+    h("div",{class:"list"},h("h3",null,"Include"),h("div",{class:"chips"},chip("all",false,"Open deadlines only"),chip("all",true,"Done ones too"))),
+    h("div",{class:"row"},h("button",{class:"pri",disabled:!n,onclick:function(){saveFile("transfer-deadlines.ics",toIcs(items.filter(function(x){return CAL.all||!x.done}),CAL.rem),out,"text/calendar")}},"Download calendar file"),h("span",{class:"mute sm"},n+" event"+(n===1?"":"s"))),out,
+    h("details",{class:"sub",open:true},h("summary",null,"How to add the file"),h("div",{class:"in sm"},
+      h("p",null,"Google Calendar on a computer: open calendar.google.com, click the gear, choose Settings, then Import and export, pick the file and press Import."),
+      h("p",null,"iPhone or iPad: open the downloaded file from Files or your downloads list, then tap Add All."),
+      h("p",null,"Android: open the downloaded file and choose Google Calendar. If nothing opens, add it from a computer and it will sync to your phone."),
+      h("p",null,"Outlook: choose File, Open and Export, then Import, and pick the iCalendar file."),
+      h("p",{class:"mute"},"This is a copy of your deadlines from today, not a live link. Your tracker lives only on this device, so a calendar cannot read it directly. After you change dates, download the file again and import it again. Every event keeps the same ID, so most calendar apps update the old ones instead of adding duplicates. Check once to be sure."))),
+    h("p",{class:"mute sm"},"For a single deadline, use Add to Google next to it in the list above.")));
+  return m}
+
+var VIEWS={overview:vOverview,universities:vUnis,scholarships:vSchol,documents:vDocs,essays:vEssays,aid:vAid,tasks:vTasks,calendar:vCalendar,profile:vProfile};
 function render(){var y=window.scrollY,v=location.hash.slice(1);view=VIEWS[v]?v:"overview";
   var nav=document.getElementById("nav");nav.textContent="";nav.append(h("div",{class:"brand"},h("i"),"Transfer Planner"));
   var od=overdueCount();NAV.forEach(function(n){var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");var p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",n[2]);svg.append(p);
