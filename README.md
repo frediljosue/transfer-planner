@@ -10,7 +10,7 @@ A free planner for college transfer applications. Keep your universities, schola
 - **Universities:** one card per school with status, deadline, portal link and a requirements checklist you can edit. Each card also holds that school's essays, recommendations, transcripts, SAT or ACT requirement, transfer credit notes, aid and fee details.
 - **Scholarships:** amount, deadline, eligibility, GPA, residency, need, documents, essay and status, with search, filter and sort.
 - **Documents:** one reusable checklist, with each document marked for the universities it is used for.
-- **Essays:** every essay for every school and scholarship in one view, with prompt, word limit, a live word count, status and deadline.
+- **Essays:** every essay for every school and scholarship in one view, with prompt, a word or character limit, a live count, status and deadline.
 - **Financial Aid:** FAFSA, CSS Profile and other aid items, plus a cost comparison that shows net cost per year.
 - **Tasks and Deadlines:** filters for Today, This week, Upcoming and Completed. Overdue items turn red and items due within 7 days turn amber.
 - **Calendar:** a month view of every deadline, with one click Add to Google Calendar links and a downloadable calendar file for your phone, Google Calendar, Apple Calendar or Outlook.

@@ -154,6 +154,9 @@ function dchip(d,done){if(!d)return h("span",{class:"pill"},"No deadline");retur
 function byDate(a,b){return(a.d||"9999").localeCompare(b.d||"9999")}
 function nm(x,fb){return x.n||x.name||fb}
 function words(t){t=(t||"").trim();return t?t.split(/\s+/).length:0}
+function chars(t){return Array.from(t||"").length}
+function measure(x,t){return x.unit==="Characters"?chars(t):words(t)}
+function unitName(x){return x.unit==="Characters"?"characters":"words"}
 
 /* ---------- derived data ---------- */
 function progress(u){var t=u.reqs.length,d=u.reqs.filter(function(r){return r.d}).length;return{t:t,d:d,p:t?Math.round(d*100/t):0}}
@@ -259,7 +262,7 @@ function scholCard(x){var k="s"+x.id,fin=["Submitted","Awarded","Not eligible"].
   var body=h("div",{class:"body"},h("div",{class:"fields"},tin(x,"n","Scholarship name",{re:1}),tin(x,"amount","Award amount ($)",{num:1,re:1}),tin(x,"deadline","Application deadline",{type:"date",re:1}),sel(x,"status","Status",SCH_ST,{re:1}),tin(x,"link","Application link",{type:"url",ph:"https://",url:1,re:1})));
   if(okUrl(x.link||""))body.append(h("p",null,h("a",{class:"link",href:x.link,target:"_blank",rel:"noopener"},"Open application")));
   body.append(details(k+"-q","sub",h("summary",null,"Eligibility"),h("div",{class:"in"},h("div",{class:"fields"},ta(x,"elig","Eligibility requirements",{rows:2}),tin(x,"gpa","GPA requirement",{ph:"For example, 3.0"}),tin(x,"res","Citizenship or residency",{}),tin(x,"need","Financial need requirement",{})))));
-  body.append(details(k+"-d","sub",h("summary",null,"Documents and essay"),h("div",{class:"in"},h("div",{class:"fields"},ta(x,"docs","Required documents",{rows:2}),ta(x,"essay","Essay requirements",{rows:2,ph:"Prompt and word limit"}),ta(x,"notes","Notes",{rows:2})))));
+  body.append(details(k+"-d","sub",h("summary",null,"Documents and essay"),h("div",{class:"in"},h("div",{class:"fields"},ta(x,"docs","Required documents",{rows:2}),ta(x,"essay","Essay requirements",{rows:2,ph:"Prompt and word or character limit"}),ta(x,"notes","Notes",{rows:2})))));
   body.append(h("div",null,del("Delete scholarship",function(){S.essays.forEach(function(e){if(e.ref==="s:"+x.id){e.ref="";e.who=nm(x,"Scholarship")}});S.schol=S.schol.filter(function(y){return y!==x});save();render()},k)));
   return details(k,"card",sum,body,false)}
 
@@ -275,14 +278,14 @@ function vDocs(){var m=h("div",{class:"list"});var rd=S.docs.filter(function(d){
   m.append(box,h("div",{class:"card pad row"},h("div",{style:"flex:1;min-width:180px"},ni),h("button",{onclick:go2},"Add document")));return m}
 
 function owner(x){var m=/^([us]):(.+)$/.exec(x.ref||"");if(m){var o=(m[1]==="u"?S.unis:S.schol).filter(function(y){return y.id===m[2]})[0];if(o)return nm(o,m[1]==="u"?"University":"Scholarship")}return x.who||"Not assigned"}
-function newEssay(ref){var x={id:uid(),ref:ref||"",who:"",prompt:"",limit:"",s:"Not started",due:"",text:"",link:"",note:""};S.essays.push(x);OPEN["e"+x.id]=true;return x}
+function newEssay(ref){var x={id:uid(),ref:ref||"",who:"",prompt:"",limit:"",unit:"Words",s:"Not started",due:"",text:"",link:"",note:""};S.essays.push(x);OPEN["e"+x.id]=true;return x}
 function refOptions(){return[["","Other or not listed"]].concat(S.unis.map(function(u){return["u:"+u.id,nm(u,"University")]}),S.schol.map(function(c){return["s:"+c.id,nm(c,"Scholarship")]}))}
 function refSelect(x,label,after){var s=h("select");refOptions().forEach(function(o){s.append(h("option",{value:o[0]},o[1]))});s.value=x.ref||"";s.onchange=function(){x.ref=s.value;save();if(after)after(s.value);else render()};return label?field(label,s):s}
-function essayCard(x,inUni){var k="e"+x.id,cnt=h("span"),upd=function(t){var w=words(t),l=+x.limit||0;cnt.textContent=w+(l?" / "+l+" words":" words");cnt.className=l&&w>l?"over":"mute sm"};upd(x.text);
-  var title=(inUni?"":owner(x)+": ")+(x.prompt?x.prompt.slice(0,50)+(x.prompt.length>50?"…":""):"Untitled essay"),wc=words(x.text);
-  var sum=h("summary",null,h("span",{class:"t"},title),pill(x.s),h("span",{class:"pill"+(x.limit&&wc>+x.limit?" bad":"")},wc+(x.limit?" / "+x.limit:"")+" words"),dchip(x.due,x.s==="Completed"));
+function essayCard(x,inUni){var k="e"+x.id,cnt=h("span"),upd=function(t){var w=measure(x,t),l=+x.limit||0;cnt.textContent=w.toLocaleString()+(l?" / "+l.toLocaleString():"")+" "+unitName(x)+(x.unit==="Characters"?" including spaces, "+Array.from((t||"").replace(/\s/g,"")).length.toLocaleString()+" without":"");cnt.className=l&&w>l?"over":"mute sm"};upd(x.text);
+  var title=(inUni?"":owner(x)+": ")+(x.prompt?x.prompt.slice(0,50)+(x.prompt.length>50?"…":""):"Untitled essay"),wc=measure(x,x.text);
+  var sum=h("summary",null,h("span",{class:"t"},title),pill(x.s),h("span",{class:"pill"+(x.limit&&wc>+x.limit?" bad":"")},wc+(x.limit?" / "+x.limit:"")+" "+unitName(x)),dchip(x.due,x.s==="Completed"));
   var top=[];if(!inUni){top.push(refSelect(x,"University or scholarship"));if(!x.ref)top.push(tin(x,"who","Name",{re:1}))}
-  var body=h("div",{class:"body"},h("div",{class:"fields"},top,sel(x,"s","Draft status",ESS_ST,{re:1}),tin(x,"due","Deadline",{type:"date",re:1}),tin(x,"limit","Word limit",{num:1,re:1}),ta(x,"prompt","Essay prompt",{rows:2})),
+  var body=h("div",{class:"body"},h("div",{class:"fields"},top,sel(x,"s","Draft status",ESS_ST,{re:1}),tin(x,"due","Deadline",{type:"date",re:1}),sel(x,"unit","Limit type",["Words","Characters"],{re:1}),tin(x,"limit","Limit",{num:1,re:1,ph:"For example, 650"}),ta(x,"prompt","Essay prompt",{rows:2})),
     h("div",{class:"fields"},ta(x,"text","Essay draft",{rows:10,live:function(v){upd(v)}})),h("div",null,cnt),
     h("div",{class:"fields"},tin(x,"link","Link to the essay",{type:"url",ph:"https://",url:1,re:1}),ta(x,"note","Notes",{rows:2})));
   if(okUrl(x.link||""))body.append(h("p",null,h("a",{class:"link",href:x.link,target:"_blank",rel:"noopener"},"Open linked essay")));
@@ -367,7 +370,7 @@ function vProfile(){var m=h("div",{class:"list"});m.append(head("My Profile","Yo
   return m}
 function toCsv(){var rows=[["Type","Name","Related","Status","Deadline","Amount","Notes"]];
   S.unis.forEach(function(u){rows.push(["University",nm(u),"",u.status,u.deadline,u.fee,u.notes])});S.schol.forEach(function(x){rows.push(["Scholarship",nm(x),"",x.status,x.deadline,x.amount,x.notes])});
-  S.essays.forEach(function(x){rows.push(["Essay",x.prompt,owner(x),x.s,x.due,x.limit,x.note])});S.docs.forEach(function(x){rows.push(["Document",x.n,x.uses.map(function(i){var u=S.unis.filter(function(y){return y.id===i})[0];return u?nm(u):""}).join("; "),x.s,"","",""])});
+  S.essays.forEach(function(x){rows.push(["Essay",x.prompt,owner(x),x.s,x.due,x.limit?x.limit+" "+unitName(x):"",x.note])});S.docs.forEach(function(x){rows.push(["Document",x.n,x.uses.map(function(i){var u=S.unis.filter(function(y){return y.id===i})[0];return u?nm(u):""}).join("; "),x.s,"","",""])});
   S.aid.forEach(function(x){rows.push(["Financial aid",x.n,x.uni,x.s,x.due,"",x.note])});S.tasks.forEach(function(x){rows.push(["Task",x.t,x.rel,x.done?"Done":"Open",x.due,"",x.pri])});
   S.unis.forEach(function(u){var c=u.cost||{};if(c.tuition||c.other||c.grants)rows.push(["Cost estimate",nm(u),"","","",(+c.tuition||0)+(+c.other||0)-(+c.grants||0),"Tuition "+(c.tuition||0)+", other "+(c.other||0)+", grants "+(c.grants||0)])});
   return rows.map(function(r){return r.map(function(v){v=v==null?"":String(v);if(/^[=+\-@]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}).join(",")}).join("\r\n")}
