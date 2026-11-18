@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Transfer Planner</title>
+<meta name="description" content="A personal planner for college transfer applications. Your data stays in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%232f6bd8%27/%3E%3Cpath d=%27M9 17l5 5 9-11%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: left sidebar with 8 sections, one calm content column. Neutral surfaces, one blue accent, semantic colors only for status. */
+:root{--bg:#f6f7f9;--surface:#ffffff;--soft:#eef1f6;--line:#dfe3ea;--fg:#1c2230;--mute:#667085;--accent:#2f6bd8;--accent-soft:#e6eefc;--on-accent:#ffffff;--good:#17794a;--good-soft:#e2f4ea;--warn:#9a5b00;--warn-soft:#fdf0d8;--bad:#b42318;--bad-soft:#fde8e6;--info:#2f6bd8;--info-soft:#e6eefc;--shadow:0 1px 2px rgba(20,30,50,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f131a;--surface:#171c26;--soft:#1f2531;--line:#2a3140;--fg:#e8ebf2;--mute:#9aa3b5;--accent:#7aa2f7;--accent-soft:#1f2c47;--on-accent:#0f131a;--good:#58c98e;--good-soft:#163024;--warn:#f0b45a;--warn-soft:#33270f;--bad:#f2837a;--bad-soft:#35191a;--info:#7aa2f7;--info-soft:#1f2c47;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f131a;--surface:#171c26;--soft:#1f2531;--line:#2a3140;--fg:#e8ebf2;--mute:#9aa3b5;--accent:#7aa2f7;--accent-soft:#1f2c47;--on-accent:#0f131a;--good:#58c98e;--good-soft:#163024;--warn:#f0b45a;--warn-soft:#33270f;--bad:#f2837a;--bad-soft:#35191a;--info:#7aa2f7;--info-soft:#1f2c47;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px;font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;line-height:1.25;text-wrap:balance}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em}h2{font-size:17px;font-weight:600}h3{font-size:14px;font-weight:600}
+p{margin:0}.mute{color:var(--mute)}.sm{font-size:13px}
+.app{display:grid;grid-template-columns:216px minmax(0,1fr);gap:28px;max-width:1120px;margin:0 auto}
+nav.side{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;display:flex;flex-direction:column;gap:2px}
+.brand{font-weight:700;font-size:16px;padding:6px 10px 14px;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--accent);display:inline-block}
+nav.side a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;color:var(--fg);text-decoration:none;font-weight:500;font-size:14px}
+nav.side a svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;color:var(--mute)}
+nav.side a:hover{background:var(--soft)}
+nav.side a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}nav.side a[aria-current="page"] svg{color:var(--accent)}
+nav.side .badge{margin-left:auto;background:var(--bad);color:#fff;border-radius:99px;font-size:11px;padding:1px 7px;font-weight:600}
+.saved{padding:14px 10px 0;font-size:12px;color:var(--mute)}
+main{min-width:0;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.head p{margin-top:4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.pad{padding:16px 18px}
+.grid{display:grid;gap:12px}.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.stat{padding:14px 16px}.stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.01em}.stat span{color:var(--mute);font-size:13px}
+.bar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden}.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+@media (prefers-reduced-motion:no-preference){.bar>i{transition:width .3s}}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--soft);color:var(--mute);white-space:nowrap}
+.pill.info{background:var(--info-soft);color:var(--info)}.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.spread{justify-content:space-between}
+.list{display:flex;flex-direction:column;gap:10px}
+.dl{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}.dl:first-child{border-top:0}
+.dl .w{min-width:0;flex:1}.dl .w b{font-weight:500;display:block;overflow-wrap:anywhere}.dl .w span{font-size:13px;color:var(--mute)}
+details.card>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::before{content:"";width:7px;height:7px;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(-45deg);flex:none;transition:transform .15s}
+details.card[open]>summary::before{transform:rotate(45deg)}
+summary .t{font-weight:600;flex:1;min-width:140px;overflow-wrap:anywhere}
+.body{padding:2px 16px 16px;display:flex;flex-direction:column;gap:14px}
+details.sub{border-top:1px solid var(--line);padding-top:10px}details.sub>summary{cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;list-style:none;display:flex;align-items:center;gap:8px}
+details.sub>summary::-webkit-details-marker{display:none}details.sub>summary::before{content:"";width:6px;height:6px;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(-45deg);flex:none}
+details.sub[open]>summary::before{transform:rotate(45deg)}details.sub>.in{padding-top:10px;display:flex;flex-direction:column;gap:12px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;min-width:0}label.f>span{font-size:12px;font-weight:600;color:var(--mute)}.wide{grid-column:1/-1}
+input,select,textarea,button{font:inherit;color:inherit}
+input[type=text],input[type=url],input[type=date],input[type=number],input[type=search],select,textarea{width:100%;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--fg)}
+textarea{resize:vertical;line-height:1.45}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500}
+button:hover{background:var(--soft)}button.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}button.pri:hover{filter:brightness(1.07)}
+button.sm{padding:4px 10px;font-size:13px}button.danger{color:var(--bad)}button.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:3px 11px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.chk{display:flex;gap:10px;align-items:center}.chk input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none}.chk input[type=text]{flex:1}
+.chk.done input[type=text]{text-decoration:line-through;color:var(--mute)}
+.empty{padding:30px 20px;text-align:center;color:var(--mute)}.empty b{display:block;color:var(--fg);font-size:16px;margin-bottom:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:8px 8px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}th{font-size:12px;color:var(--mute);font-weight:600}
+td input{min-width:90px}td.num{text-align:right;white-space:nowrap}tr.best td{background:var(--good-soft)}
+.over{color:var(--bad);font-weight:600}.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;z-index:20;max-width:90vw}
+a.link{color:var(--accent);text-decoration:none;font-weight:500}a.link:hover{text-decoration:underline}
+@media (max-width:820px){
+ .app{grid-template-columns:minmax(0,1fr);gap:14px}
+ nav.side{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+ nav.side a{flex:none;padding:8px 12px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+ nav.side a svg{display:none}.brand,.saved{display:none}
+ h1{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" id="nav" aria-label="Sections"></nav>
+  <main id="main" aria-live="polite"></main>
+</div>
+<datalist id="schools"></datalist>
+<div id="toast" class="toast" hidden role="status"></div>
+<script>
+"use strict";
+var SCHOOLS="MIT|Massachusetts Institute of Technology|Boston University|Northeastern University|Harvard University|Tufts University|Boston College|Brandeis University|Worcester Polytechnic Institute|WPI|Olin College of Engineering|Wentworth Institute of Technology|Babson College|Bentley University|Suffolk University|Emerson College|Merrimack College|Stonehill College|Simmons University|UMass Amherst|UMass Boston|UMass Lowell|UMass Dartmouth|University of Massachusetts Amherst|University of Massachusetts Boston|University of Massachusetts Lowell|Carnegie Mellon University|Georgia Institute of Technology|Georgia Tech|Stanford University|University of California, Berkeley|UC Berkeley|UCLA|University of California, Los Angeles|UC San Diego|UC Santa Barbara|UC Irvine|UC Davis|UC Santa Cruz|UC Riverside|California Institute of Technology|Caltech|University of Michigan|University of Illinois Urbana-Champaign|Purdue University|University of Texas at Austin|Texas A&M University|Virginia Tech|Cornell University|Princeton University|Johns Hopkins University|Duke University|Rice University|Columbia University|New York University|NYU|University of Pennsylvania|Rensselaer Polytechnic Institute|RPI|Stevens Institute of Technology|Drexel University|University of Rochester|Rochester Institute of Technology|Case Western Reserve University|Northwestern University|University of Washington|Ohio State University|Penn State University|University of Maryland|NC State University|North Carolina State University|Clemson University|Auburn University|Rose-Hulman Institute of Technology|Colorado School of Mines|University of Colorado Boulder|Arizona State University|University of Arizona|University of Southern California|USC|Yale University|Brown University|Dartmouth College|University of Notre Dame|Vanderbilt University|Emory University|University of Virginia|University of North Carolina at Chapel Hill|University of Wisconsin-Madison|University of Minnesota|University of Pittsburgh|Rutgers University|New Jersey Institute of Technology|NJIT|Lehigh University|Villanova University|George Washington University|Georgetown University|American University|Florida International University|FIU|University of Florida|UF|Florida State University|FSU|University of Central Florida|UCF|University of South Florida|USF|University of Miami|Florida Atlantic University|FAU|Florida Gulf Coast University|University of North Florida|University of West Florida|Florida Institute of Technology|Florida Tech|Florida Polytechnic University|Embry-Riddle Aeronautical University|Nova Southeastern University|Barry University|St. Thomas University|Florida A&M University|FAMU|Rollins College|Stetson University|Eckerd College|New College of Florida|Florida Memorial University|Miami Dade College|DePaul University|Loyola University Chicago|Illinois Institute of Technology|Michigan State University|Michigan Technological University|Iowa State University|University of Iowa|Indiana University Bloomington|University of Cincinnati|University of Dayton|Texas Tech University|University of Houston|University of Texas at Dallas|Southern Methodist University|Baylor University|Texas Christian University|University of Utah|Utah State University|Oregon State University|University of Oregon|Washington State University|University of Tennessee|University of Alabama|University of Alabama in Huntsville|University of Georgia|University of South Carolina|University of Kentucky|University of Delaware|University of Connecticut|UConn|University of Vermont|University of New Hampshire|University of Rhode Island|Northeastern University London|Syracuse University|University at Buffalo|Binghamton University|Stony Brook University|Cooper Union|Pratt Institute|Fordham University|Tulane University|Santa Clara University|Harvey Mudd College|Cal Poly San Luis Obispo|San Diego State University|San Jose State University".split("|");
+var LS="transfer-planner-v1";
+var UNI_ST=["Not started","In progress","Submitted","Awaiting decision","Accepted","Rejected"];
+var SCH_ST=["Researching","Eligible","Need to apply","In progress","Submitted","Awarded","Not eligible"];
+var DOC_ST=["Not started","In progress","Ready","Submitted"];
+var ESS_ST=["Not started","Brainstorming","Drafting","Reviewing","Completed"];
+var AID_ST=["Not started","In progress","Submitted","Received"];
+var TONE={"In progress":"info","Brainstorming":"info","Drafting":"info","Eligible":"info","Submitted":"good","Ready":"good","Completed":"good","Accepted":"good","Awarded":"good","Received":"good","Awaiting decision":"warn","Reviewing":"warn","Need to apply":"warn","Rejected":"bad","Not eligible":"bad"};
+var DEF_REQS=["Application form","Application fee or fee waiver","College transcripts","Essays","Recommendation letters","Test scores, if required","Financial aid forms","Transfer credit evaluation"];
+var DEF_DOCS=["Official transcripts","Unofficial transcripts","College transcripts","High school transcripts","Resume","Personal statement","Transfer essays","Recommendation letters","Financial aid documents","Proof of residency, if required","Test scores, if required","Other supporting documents"];
+var DEF_AID=["FAFSA","CSS Profile, if required","Institutional financial aid applications","Application fee waivers","Financial aid award letters"];
+var NAV=[["overview","Overview","M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],["universities","Universities","M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"],["scholarships","Scholarships","M12 3a5 5 0 100 10 5 5 0 000-10zM9 13.5L8 21l4-2 4 2-1-7.5"],["documents","Documents","M6 3h8l4 4v14H6zM14 3v4h4"],["essays","Essays","M4 20l1-4L16 5l3 3L8 19z"],["aid","Financial Aid","M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v10M15 9.5c0-1-1.3-1.8-3-1.8s-3 .8-3 1.8 1.3 1.6 3 2 3 1 3 2-1.3 1.8-3 1.8-3-.8-3-1.8"],["tasks","Tasks & Deadlines","M4 5h16v14H4zM8 12l3 3 5-6"],["profile","My Profile","M12 4a4 4 0 100 8 4 4 0 000-8zM5 20c0-4 3-6 7-6s7 2 7 6"]];
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function defaults(){return{rev:0,unis:[],schol:[],docs:DEF_DOCS.map(function(n){return{id:uid(),n:n,s:"Not started",uses:[]}}),essays:[],aid:DEF_AID.map(function(n){return{id:uid(),n:n,s:"Not started",due:"",uni:"",note:""}}),tasks:[],
+  profile:{major:"",interests:"",school:"",pathway:"",gpa:"",level:"",goal:"",career:""}}}
+function norm(d){var b=defaults();d=d&&typeof d==="object"?d:{};["unis","schol","docs","essays","aid","tasks"].forEach(function(k){if(!Array.isArray(d[k]))d[k]=b[k]});d.profile=Object.assign({},b.profile,d.profile||{});d.rev=+d.rev||0;
+  if(LOCAL_ONLY){var ks=["major","interests","school","pathway","gpa","level","goal","career"],hh=5381;ks.map(function(k){return d.profile[k]}).join("|").split("").forEach(function(c){hh=(hh*33+c.charCodeAt(0))>>>0});if(hh==3606802408)ks.forEach(function(k){d.profile[k]=""})}
+  d.essays.forEach(function(e){if(e.ref==null){var w=(e.who||"").toLowerCase(),u=d.unis.filter(function(y){return w&&(y.n||"").toLowerCase()===w})[0],c=d.schol.filter(function(y){return w&&(y.n||"").toLowerCase()===w})[0];e.ref=u?"u:"+u.id:c?"s:"+c.id:""}});
+  d.unis.forEach(function(u){u.reqs=Array.isArray(u.reqs)?u.reqs:[];u.cost=u.cost||{}});d.docs.forEach(function(x){x.uses=Array.isArray(x.uses)?x.uses:[]});return d}
+function canon(x){return JSON.stringify(x)}
+
+var LOCAL_ONLY=!(window.claude&&claude.use);
+var S=norm(null),loaded=false,dirty=false,ref=null,timer=null,view="overview",OPEN={},UI={uq:"",ust:"All",sq:"",sst:"All",ssort:"Deadline",tf:"All",eq:"All"},UID=0,armed=null;
+try{var raw=localStorage.getItem(LS);if(raw)S=norm(JSON.parse(raw))}catch(e){}
+
+/* ---------- dom helpers ---------- */
+function h(tag,a){var e=document.createElement(tag);a=a||{};for(var k in a){var v=a[k];if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k.indexOf("on")===0)e[k]=v;else e.setAttribute(k,v===true?"":v)}
+  for(var i=2;i<arguments.length;i++)add(e,arguments[i]);return e}
+function add(e,c){if(c==null||c===false)return;if(Array.isArray(c))c.forEach(function(x){add(e,x)});else e.append(c.nodeType?c:document.createTextNode(String(c)))}
+function toast(t){var el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},2600)}
+function status(t){var s=document.getElementById("saved");if(s)s.textContent=t}
+function okUrl(v){return /^https?:\/\/[^\s]+$/i.test(v)}
+function save(){dirty=true;S.rev=(S.rev||0)+1;try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}status("Saving…");clearTimeout(timer);timer=setTimeout(flush,400)}
+function flush(){if(!ref||!loaded){status("Saved on this device");dirty=false;return Promise.resolve()}
+  return ref.set(clone(S)).then(function(){dirty=false;status("Saved")}).catch(function(){status("Could not save online. Kept on this device.")})}
+function field(label,el,cls){var id="f"+(++UID);el.id=id;return h("label",{class:"f "+(cls||""),for:id},h("span",null,label),el)}
+function tin(o,k,label,opt){opt=opt||{};var i=h("input",{type:opt.type||(opt.num?"number":"text"),placeholder:opt.ph||"",list:opt.list||null,min:opt.num?"0":null,step:opt.num?"any":null});i.value=o[k]==null?"":o[k];
+  i.onchange=function(){var v=i.value.trim();if(opt.num)v=v===""?"":Math.max(0,Number(v)||0);if(opt.url&&v&&!okUrl(v)){toast("Links must start with https://");v=""; i.value=""}o[k]=v;save();if(opt.re)render();if(opt.after)opt.after()};return field(label,i,opt.cls)}
+function sel(o,k,label,opts,opt){opt=opt||{};var s=h("select");opts.forEach(function(x){s.append(h("option",{value:x},x))});if(opts.indexOf(o[k])<0)o[k]=opts[0];s.value=o[k];
+  s.onchange=function(){o[k]=s.value;save();if(opt.re)render()};return opt.bare?s:field(label,s,opt.cls)}
+function ta(o,k,label,opt){opt=opt||{};var t=h("textarea",{rows:opt.rows||3,placeholder:opt.ph||""});t.value=o[k]||"";t.onchange=function(){o[k]=t.value;save()};if(opt.live)t.oninput=function(){opt.live(t.value)};return field(label,t,opt.cls||"wide")}
+function del(label,fn,key){var b=h("button",{class:"sm danger",type:"button"},label);b.onclick=function(){if(armed!==key){armed=key;b.textContent="Tap again to delete";b.classList.add("armed");setTimeout(function(){if(armed===key){armed=null;b.textContent=label;b.classList.remove("armed")}},3500);return}armed=null;fn()};return b}
+function pill(t,tone){return h("span",{class:"pill "+(tone||TONE[t]||"")},t)}
+function details(key,cls,summary,body,defOpen){var d=h("details",{class:cls});d.open=OPEN[key]!=null?OPEN[key]:!!defOpen;d.ontoggle=function(){OPEN[key]=d.open};d.append(summary);d.append(body);return d}
+
+/* ---------- dates ---------- */
+function today(){return new Date().toLocaleDateString("en-CA")}
+function days(d){if(!d)return null;var a=new Date(d+"T00:00:00"),b=new Date(today()+"T00:00:00");return Math.round((a-b)/864e5)}
+function fmt(d){if(!d)return"";return new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+function rel(d){var n=days(d);if(n===null)return"";return n===0?"today":n===1?"tomorrow":n===-1?"1 day overdue":n<0?(-n)+" days overdue":"in "+n+" days"}
+function dtone(d,done){var n=days(d);if(done||n===null)return"";return n<0?"bad":n<=7?"warn":""}
+function dchip(d,done){if(!d)return h("span",{class:"pill"},"No deadline");return h("span",{class:"pill "+dtone(d,done)},fmt(d)+(done?"":" · "+rel(d)))}
+function byDate(a,b){return(a.d||"9999").localeCompare(b.d||"9999")}
+function nm(x,fb){return x.n||x.name||fb}
+function words(t){t=(t||"").trim();return t?t.split(/\s+/).length:0}
+
+/* ---------- derived data ---------- */
+function progress(u){var t=u.reqs.length,d=u.reqs.filter(function(r){return r.d}).length;return{t:t,d:d,p:t?Math.round(d*100/t):0}}
+function allDeadlines(){var o=[];
+  S.unis.forEach(function(u){if(u.deadline)o.push({d:u.deadline,label:nm(u)+" application",kind:"University",v:"universities",done:u.status!=="Not started"&&u.status!=="In progress"})});
+  S.schol.forEach(function(x){if(x.deadline)o.push({d:x.deadline,label:nm(x,"Scholarship"),kind:"Scholarship",v:"scholarships",done:["Submitted","Awarded","Not eligible"].indexOf(x.status)>=0})});
+  S.essays.forEach(function(x){if(x.due)o.push({d:x.due,label:owner(x)+" essay",kind:"Essay",v:"essays",done:x.s==="Completed"})});
+  S.aid.forEach(function(x){if(x.due)o.push({d:x.due,label:x.n+(x.uni?" for "+x.uni:""),kind:"Financial aid",v:"aid",done:x.s==="Submitted"||x.s==="Received"})});
+  S.tasks.forEach(function(x){if(x.due)o.push({d:x.due,label:x.t||"Task",kind:"Task",v:"tasks",done:!!x.done})});
+  return o.sort(byDate)}
+function overdueCount(){return allDeadlines().filter(function(x){return!x.done&&days(x.d)<0}).length}
+function relOptions(){return["None"].concat(S.unis.map(function(u){return nm(u,"University")}),S.schol.map(function(x){return nm(x,"Scholarship")}))}
+
+/* ---------- views ---------- */
+function head(title,sub,right){return h("div",{class:"head"},h("div",null,h("h1",null,title),sub&&h("p",{class:"mute"},sub)),right)}
+function empty(title,text,btn){return h("div",{class:"card empty"},h("b",null,title),h("p",null,text),btn&&h("p",{style:"margin-top:12px"},btn))}
+function go(v){location.hash=v}
+function dlRow(x){var a=h("a",{class:"link",href:"#"+x.v},"Open");return h("div",{class:"dl"},h("div",{class:"w"},h("b",null,x.label),h("span",null,x.kind+" · "+fmt(x.d))),h("span",{class:"pill "+dtone(x.d,x.done)},rel(x.d)),a)}
+
+function vOverview(){var m=h("div",{class:"list"});window.__lo=LOCAL_ONLY;
+  var tot=0,dn=0;S.unis.forEach(function(u){var p=progress(u);tot+=p.t;dn+=p.d});var pc=tot?Math.round(dn*100/tot):0;
+  var sub=S.profile.goal?"Transfer goal: "+S.profile.goal:"";
+  m.append(head("Overview",sub));
+  if(LOCAL_ONLY)m.append(h("p",{class:"mute sm"},"Your data is saved only in this browser on this device. Export a backup from My Profile now and then."));
+  if(!S.unis.length&&!S.schol.length){m.append(empty("Start with your first university","Add a university and its checklist appears here with your deadlines and progress.",h("button",{class:"pri",onclick:function(){go("universities")}},"Add a university")));return m}
+  var by=function(f){return S.unis.filter(f).length};
+  var sch=S.schol.filter(function(x){return["Not eligible","Awarded"].indexOf(x.status)<0});var pot=sch.reduce(function(a,x){return a+(+x.amount||0)},0);
+  m.append(h("div",{class:"card pad"},h("div",{class:"row spread"},h("h2",null,"Overall application progress"),h("b",null,pc+"%")),h("div",{class:"bar",style:"margin:10px 0 6px"},h("i",{style:"width:"+pc+"%"})),h("p",{class:"mute sm"},dn+" of "+tot+" checklist items done across "+S.unis.length+(S.unis.length===1?" university":" universities"))));
+  m.append(h("div",{class:"grid g4"},
+    h("div",{class:"card stat"},h("b",null,S.unis.length),h("span",null,"Universities")),
+    h("div",{class:"card stat"},h("b",null,by(function(u){return u.status==="In progress"})),h("span",null,"In progress")),
+    h("div",{class:"card stat"},h("b",null,by(function(u){return["Submitted","Awaiting decision","Accepted","Rejected"].indexOf(u.status)>=0})),h("span",null,"Submitted or later")),
+    h("div",{class:"card stat"},h("b",null,by(function(u){return u.status==="Not started"})),h("span",null,"Not started")),
+    h("div",{class:"card stat"},h("b",null,sch.length),h("span",null,"Scholarships tracking"+(pot?" · $"+pot.toLocaleString():"")))));
+  var all=allDeadlines().filter(function(x){return!x.done});
+  var att=all.filter(function(x){return days(x.d)<=7}),later=all.filter(function(x){return days(x.d)>7}).slice(0,6);
+  var a=h("div",{class:"card pad"},h("h2",null,"Needs attention"),h("p",{class:"mute sm",style:"margin:2px 0 6px"},"Overdue or due within 7 days"));
+  if(att.length)att.forEach(function(x){a.append(dlRow(x))});else a.append(h("p",{class:"mute",style:"padding:10px 0"},"Nothing is due in the next 7 days."));
+  var b=h("div",{class:"card pad"},h("h2",null,"Coming up"),h("p",{class:"mute sm",style:"margin:2px 0 6px"},"Your next deadlines after that"));
+  if(later.length)later.forEach(function(x){b.append(dlRow(x))});else b.append(h("p",{class:"mute",style:"padding:10px 0"},"Add deadlines to universities, scholarships, essays or tasks and they show up here."));
+  m.append(h("div",{class:"grid g2"},a,b));return m}
+
+function vUnis(){var m=h("div",{class:"list"}),box=h("div",{class:"list"});
+  var nin=h("input",{type:"text",list:"schools",placeholder:"University name",id:"newuni","aria-label":"University name"});
+  var addU=function(){var n=nin.value.trim();if(!n)return;var u={id:uid(),n:n,status:"Not started",deadline:"",portal:"",reqs:DEF_REQS.map(function(t){return{t:t,d:false}}),cost:{}};S.unis.push(u);OPEN["u"+u.id]=true;nin.value="";save();render();toast("Added "+n)};
+  nin.onkeydown=function(e){if(e.key==="Enter")addU()};
+  m.append(head("Universities","Add the schools you are applying to. Each one has its own checklist."));
+  m.append(h("div",{class:"card pad row"},h("div",{style:"flex:1;min-width:200px"},nin),h("button",{class:"pri",onclick:addU},"Add university")));
+  var q=h("input",{type:"search",placeholder:"Search universities","aria-label":"Search universities"});q.value=UI.uq;
+  var st=h("select",{"aria-label":"Filter by status"});["All"].concat(UNI_ST).forEach(function(x){st.append(h("option",{value:x},x==="All"?"All statuses":x))});st.value=UI.ust;
+  var draw=function(){box.textContent="";var ls=S.unis.filter(function(u){return(UI.ust==="All"||u.status===UI.ust)&&(!UI.uq||nm(u).toLowerCase().indexOf(UI.uq.toLowerCase())>=0)});
+    if(!S.unis.length)box.append(empty("No universities yet","Type a name above and press Add university."));else if(!ls.length)box.append(empty("No matches","Try a different search or status."));
+    ls.slice().sort(function(a,b){return byDate({d:a.deadline},{d:b.deadline})}).forEach(function(u){box.append(uniCard(u))})};
+  q.oninput=function(){UI.uq=q.value;draw()};st.onchange=function(){UI.ust=st.value;draw()};
+  if(S.unis.length>1)m.append(h("div",{class:"row"},h("div",{style:"flex:1;min-width:180px"},q),h("div",{style:"min-width:170px"},st)));
+  draw();m.append(box);return m}
+
+function uniCard(u){var p=progress(u),k="u"+u.id;
+  var sum=h("summary",null,h("span",{class:"t"},nm(u)),pill(u.status),dchip(u.deadline,u.status!=="Not started"&&u.status!=="In progress"),h("span",{class:"pill"},p.d+"/"+p.t+" done"),(function(){var e=S.essays.filter(function(x){return x.ref==="u:"+u.id});return e.length?h("span",{class:"pill"},e.filter(function(x){return x.s==="Completed"}).length+"/"+e.length+" essays"):null})());
+  var body=h("div",{class:"body"});
+  body.append(h("div",{class:"fields"},sel(u,"status","Application status",UNI_ST,{re:1}),tin(u,"deadline","Application deadline",{type:"date",re:1}),tin(u,"portal","Application portal link",{type:"url",ph:"https://",url:1,re:1})));
+  if(okUrl(u.portal||""))body.append(h("p",null,h("a",{class:"link",href:u.portal,target:"_blank",rel:"noopener"},"Open application portal")));
+  body.append(h("div",{class:"bar"},h("i",{style:"width:"+p.p+"%"})));
+  var rq=h("div",{class:"list"});u.reqs.forEach(function(r,i){var c=h("input",{type:"checkbox","aria-label":"Done"});c.checked=!!r.d;c.onchange=function(){r.d=c.checked;save();render()};
+    var t=h("input",{type:"text","aria-label":"Requirement"});t.value=r.t;t.onchange=function(){r.t=t.value.trim()||r.t;save()};
+    rq.append(h("div",{class:"chk"+(r.d?" done":"")},c,t,del("Remove",function(){u.reqs.splice(i,1);save();render()},k+"r"+i)))});
+  var nr=h("input",{type:"text",placeholder:"Add a requirement","aria-label":"New requirement"});var addR=function(){var t=nr.value.trim();if(!t)return;u.reqs.push({t:t,d:false});save();render()};nr.onkeydown=function(e){if(e.key==="Enter")addR()};
+  rq.append(h("div",{class:"row"},h("div",{style:"flex:1;min-width:160px"},nr),h("button",{class:"sm",onclick:addR},"Add")));
+  body.append(details(k+"-r","sub",h("summary",null,"Application requirements"),h("div",{class:"in"},rq),true));
+  var ue=S.essays.filter(function(x){return x.ref==="u:"+u.id}),el2=h("div",{class:"in"});
+  if(!ue.length)el2.append(h("p",{class:"mute sm"},"No essays for this university yet."));ue.forEach(function(x){el2.append(essayCard(x,true))});
+  el2.append(h("div",null,h("button",{class:"sm",onclick:function(){newEssay("u:"+u.id);OPEN[k+"-es"]=true;save();render()}},"Add essay for this university")));
+  body.append(details(k+"-es","sub",h("summary",null,"Essays"+(ue.length?" ("+ue.filter(function(x){return x.s==="Completed"}).length+" of "+ue.length+" done)":"")),el2,true));
+  body.append(details(k+"-e","sub",h("summary",null,"Recommendations and transcripts"),h("div",{class:"in"},h("div",{class:"fields"},
+    tin(u,"essayReq","Essay notes",{ph:"For example, supplements the school asks for"}),tin(u,"recs","Recommendation letters",{ph:"Who, and how many"}),sel(u,"tx","Transcripts",["Not requested","Requested","Sent","Received"],{})))));
+  body.append(details(k+"-t","sub",h("summary",null,"Test scores and transfer credit"),h("div",{class:"in"},h("div",{class:"fields"},
+    sel(u,"tests","SAT or ACT requirement",["Not checked yet","Required","Optional","Not considered"]),tin(u,"testNote","Test details",{ph:"Minimum scores, deadlines"}),ta(u,"credit","Transfer credit information",{rows:3,ph:"Credit limits, course equivalencies"})))));
+  body.append(details(k+"-f","sub",h("summary",null,"Financial aid and fees"),h("div",{class:"in"},h("div",{class:"fields"},
+    ta(u,"aidReq","Financial aid requirements",{rows:2,ph:"Forms and deadlines the school asks for"}),tin(u,"fee","Application fee ($)",{num:1}),sel(u,"waiver","Fee waiver",["Not checked yet","Not needed","Requested","Approved","Denied"])))));
+  body.append(details(k+"-n","sub",h("summary",null,"Notes"),h("div",{class:"in"},h("div",{class:"fields"},ta(u,"notes","Important notes",{rows:3})))));
+  body.append(h("div",null,del("Delete university",function(){S.essays.forEach(function(e){if(e.ref==="u:"+u.id){e.ref="";e.who=nm(u,"University")}});S.unis=S.unis.filter(function(x){return x!==u});S.docs.forEach(function(d){d.uses=d.uses.filter(function(i){return i!==u.id})});save();render()},k)));
+  return details(k,"card",sum,body,false)}
+
+function vSchol(){var m=h("div",{class:"list"}),box=h("div",{class:"list"});
+  m.append(head("Scholarships","Track what you are eligible for and what is due.",h("button",{class:"pri",onclick:function(){var x={id:uid(),n:"",status:"Researching"};S.schol.push(x);OPEN["s"+x.id]=true;UI.sst="All";UI.sq="";save();render()}},"Add scholarship")));
+  var q=h("input",{type:"search",placeholder:"Search scholarships","aria-label":"Search scholarships"});q.value=UI.sq;
+  var st=h("select",{"aria-label":"Filter by status"});["All"].concat(SCH_ST).forEach(function(x){st.append(h("option",{value:x},x==="All"?"All statuses":x))});st.value=UI.sst;
+  var so=h("select",{"aria-label":"Sort"});["Deadline","Award amount","Name"].forEach(function(x){so.append(h("option",{value:x},"Sort by "+x.toLowerCase()))});so.value=UI.ssort;
+  var draw=function(){box.textContent="";var ls=S.schol.filter(function(x){return(UI.sst==="All"||x.status===UI.sst)&&(!UI.sq||nm(x).toLowerCase().indexOf(UI.sq.toLowerCase())>=0)});
+    ls.sort(function(a,b){return UI.ssort==="Award amount"?(+b.amount||0)-(+a.amount||0):UI.ssort==="Name"?nm(a).localeCompare(nm(b)):byDate({d:a.deadline},{d:b.deadline})});
+    if(!S.schol.length)box.append(empty("No scholarships yet","Add one to track its deadline, requirements and essay."));else if(!ls.length)box.append(empty("No matches","Try a different search or status."));
+    ls.forEach(function(x){box.append(scholCard(x))})};
+  q.oninput=function(){UI.sq=q.value;draw()};st.onchange=function(){UI.sst=st.value;draw()};so.onchange=function(){UI.ssort=so.value;draw()};
+  if(S.schol.length>1)m.append(h("div",{class:"row"},h("div",{style:"flex:1;min-width:170px"},q),h("div",{style:"min-width:160px"},st),h("div",{style:"min-width:170px"},so)));
+  draw();m.append(box);return m}
+function scholCard(x){var k="s"+x.id,fin=["Submitted","Awarded","Not eligible"].indexOf(x.status)>=0;
+  var sum=h("summary",null,h("span",{class:"t"},nm(x,"New scholarship")),x.amount!==""&&x.amount!=null?h("span",{class:"pill"},"$"+(+x.amount).toLocaleString()):null,pill(x.status),dchip(x.deadline,fin));
+  var body=h("div",{class:"body"},h("div",{class:"fields"},tin(x,"n","Scholarship name",{re:1}),tin(x,"amount","Award amount ($)",{num:1,re:1}),tin(x,"deadline","Application deadline",{type:"date",re:1}),sel(x,"status","Status",SCH_ST,{re:1}),tin(x,"link","Application link",{type:"url",ph:"https://",url:1,re:1})));
+  if(okUrl(x.link||""))body.append(h("p",null,h("a",{class:"link",href:x.link,target:"_blank",rel:"noopener"},"Open application")));
+  body.append(details(k+"-q","sub",h("summary",null,"Eligibility"),h("div",{class:"in"},h("div",{class:"fields"},ta(x,"elig","Eligibility requirements",{rows:2}),tin(x,"gpa","GPA requirement",{ph:"For example, 3.0"}),tin(x,"res","Citizenship or residency",{}),tin(x,"need","Financial need requirement",{})))));
+  body.append(details(k+"-d","sub",h("summary",null,"Documents and essay"),h("div",{class:"in"},h("div",{class:"fields"},ta(x,"docs","Required documents",{rows:2}),ta(x,"essay","Essay requirements",{rows:2,ph:"Prompt and word limit"}),ta(x,"notes","Notes",{rows:2})))));
+  body.append(h("div",null,del("Delete scholarship",function(){S.essays.forEach(function(e){if(e.ref==="s:"+x.id){e.ref="";e.who=nm(x,"Scholarship")}});S.schol=S.schol.filter(function(y){return y!==x});save();render()},k)));
+  return details(k,"card",sum,body,false)}
+
+function vDocs(){var m=h("div",{class:"list"});var rd=S.docs.filter(function(d){return d.s==="Ready"||d.s==="Submitted"}).length;
+  m.append(head("Documents","One checklist for everything you reuse. Mark which applications each document is for.",h("span",{class:"pill info"},rd+" of "+S.docs.length+" ready")));
+  var box=h("div",{class:"list"});
+  S.docs.forEach(function(d){var nmI=h("input",{type:"text","aria-label":"Document name"});nmI.value=d.n;nmI.onchange=function(){d.n=nmI.value.trim()||d.n;save()};
+    var top=h("div",{class:"row"},h("div",{style:"flex:1;min-width:180px"},nmI),sel(d,"s","",DOC_ST,{bare:1,re:1}),del("Remove",function(){S.docs=S.docs.filter(function(x){return x!==d});save();render()},"d"+d.id));
+    var c=h("div",{class:"card pad list",style:"gap:8px"},top);
+    if(S.unis.length){var ch=h("div",{class:"chips"});S.unis.forEach(function(u){var b=h("button",{class:"chip",type:"button","aria-pressed":d.uses.indexOf(u.id)>=0?"true":"false"},nm(u));b.onclick=function(){var i=d.uses.indexOf(u.id);if(i<0)d.uses.push(u.id);else d.uses.splice(i,1);save();b.setAttribute("aria-pressed",i<0?"true":"false")};ch.append(b)});c.append(h("p",{class:"mute sm"},"Used for"),ch)}
+    box.append(c)});
+  var ni=h("input",{type:"text",placeholder:"Add a document","aria-label":"New document"});var go2=function(){var n=ni.value.trim();if(!n)return;S.docs.push({id:uid(),n:n,s:"Not started",uses:[]});save();render()};ni.onkeydown=function(e){if(e.key==="Enter")go2()};
+  m.append(box,h("div",{class:"card pad row"},h("div",{style:"flex:1;min-width:180px"},ni),h("button",{onclick:go2},"Add document")));return m}
+
+function owner(x){var m=/^([us]):(.+)$/.exec(x.ref||"");if(m){var o=(m[1]==="u"?S.unis:S.schol).filter(function(y){return y.id===m[2]})[0];if(o)return nm(o,m[1]==="u"?"University":"Scholarship")}return x.who||"Not assigned"}
+function newEssay(ref){var x={id:uid(),ref:ref||"",who:"",prompt:"",limit:"",s:"Not started",due:"",text:"",link:"",note:""};S.essays.push(x);OPEN["e"+x.id]=true;return x}
+function refOptions(){return[["","Other or not listed"]].concat(S.unis.map(function(u){return["u:"+u.id,nm(u,"University")]}),S.schol.map(function(c){return["s:"+c.id,nm(c,"Scholarship")]}))}
+function refSelect(x,label,after){var s=h("select");refOptions().forEach(function(o){s.append(h("option",{value:o[0]},o[1]))});s.value=x.ref||"";s.onchange=function(){x.ref=s.value;save();if(after)after(s.value);else render()};return label?field(label,s):s}
+function essayCard(x,inUni){var k="e"+x.id,cnt=h("span"),upd=function(t){var w=words(t),l=+x.limit||0;cnt.textContent=w+(l?" / "+l+" words":" words");cnt.className=l&&w>l?"over":"mute sm"};upd(x.text);
+  var title=(inUni?"":owner(x)+": ")+(x.prompt?x.prompt.slice(0,50)+(x.prompt.length>50?"…":""):"Untitled essay"),wc=words(x.text);
+  var sum=h("summary",null,h("span",{class:"t"},title),pill(x.s),h("span",{class:"pill"+(x.limit&&wc>+x.limit?" bad":"")},wc+(x.limit?" / "+x.limit:"")+" words"),dchip(x.due,x.s==="Completed"));
+  var top=[];if(!inUni){top.push(refSelect(x,"University or scholarship"));if(!x.ref)top.push(tin(x,"who","Name",{re:1}))}
+  var body=h("div",{class:"body"},h("div",{class:"fields"},top,sel(x,"s","Draft status",ESS_ST,{re:1}),tin(x,"due","Deadline",{type:"date",re:1}),tin(x,"limit","Word limit",{num:1,re:1}),ta(x,"prompt","Essay prompt",{rows:2})),
+    h("div",{class:"fields"},ta(x,"text","Essay draft",{rows:10,live:function(v){upd(v)}})),h("div",null,cnt),
+    h("div",{class:"fields"},tin(x,"link","Link to the essay",{type:"url",ph:"https://",url:1,re:1}),ta(x,"note","Notes",{rows:2})));
+  if(okUrl(x.link||""))body.append(h("p",null,h("a",{class:"link",href:x.link,target:"_blank",rel:"noopener"},"Open linked essay")));
+  body.append(h("div",null,del("Delete essay",function(){S.essays=S.essays.filter(function(y){return y!==x});save();render()},k)));
+  return details(k,"card",sum,body,false)}
+function vEssays(){var m=h("div",{class:"list"}),E=S.essays,n=E.length,dn=E.filter(function(x){return x.s==="Completed"}).length,ip=E.filter(function(x){return["Brainstorming","Drafting","Reviewing"].indexOf(x.s)>=0}).length,wd=E.reduce(function(a,x){return a+words(x.text)},0);
+  m.append(head("Essays","Every essay for every university and scholarship, in one place. Add and edit them here or inside each university."));
+  var who=h("select",{"aria-label":"Essay is for"});refOptions().forEach(function(o){who.append(h("option",{value:o[0]},o[0]?"For "+o[1]:o[1]))});
+  m.append(h("div",{class:"card pad row"},h("div",{style:"flex:1;min-width:200px"},who),h("button",{class:"pri",onclick:function(){newEssay(who.value);UI.eq="All";save();render()}},"Add essay")));
+  if(!n){m.append(empty("No essays yet","Pick a university or scholarship above, then add each prompt you need to write."));return m}
+  var pc=Math.round(dn*100/n);
+  m.append(h("div",{class:"card pad"},h("div",{class:"row spread"},h("h2",null,"Essay progress"),h("b",null,dn+" of "+n+" completed")),h("div",{class:"bar",style:"margin:10px 0 0"},h("i",{style:"width:"+pc+"%"}))));
+  m.append(h("div",{class:"grid g4"},h("div",{class:"card stat"},h("b",null,n),h("span",null,"Essays")),h("div",{class:"card stat"},h("b",null,ip),h("span",null,"In progress")),h("div",{class:"card stat"},h("b",null,E.filter(function(x){return x.s==="Not started"}).length),h("span",null,"Not started")),h("div",{class:"card stat"},h("b",null,wd.toLocaleString()),h("span",null,"Words written"))));
+  var st=h("select",{"aria-label":"Filter by status"});["All"].concat(ESS_ST).forEach(function(x){st.append(h("option",{value:x},x==="All"?"All statuses":x))});st.value=UI.eq;st.onchange=function(){UI.eq=st.value;render()};m.append(h("div",{style:"max-width:220px"},st));
+  var groups=S.unis.map(function(u){return{name:nm(u,"University"),key:"u:"+u.id}}).concat(S.schol.map(function(c){return{name:nm(c,"Scholarship"),key:"s:"+c.id}}),[{name:"Other or not listed",key:""}]);
+  var shown=0;groups.forEach(function(g){var all=E.filter(function(x){return(x.ref||"")===g.key&&(g.key||true)});if(g.key==="")all=E.filter(function(x){return!x.ref||!groups.some(function(q){return q.key&&q.key===x.ref})});
+    var ls=all.filter(function(x){return UI.eq==="All"||x.s===UI.eq}).sort(function(a,b){return byDate({d:a.due},{d:b.due})});if(!ls.length)return;shown+=ls.length;
+    var d2=all.filter(function(x){return x.s==="Completed"}).length;
+    m.append(h("div",{class:"list"},h("div",{class:"row spread",style:"margin-top:6px"},h("h2",null,g.name),h("span",{class:"pill"+(d2===all.length?" good":"")},d2+" of "+all.length+" done")),ls.map(function(x){return essayCard(x,true)})))});
+  if(!shown)m.append(empty("Nothing here","No essays match this status."));return m}
+function vAid(){var m=h("div",{class:"list"});m.append(head("Financial Aid","Forms, deadlines and what each school will cost."));
+  var box=h("div",{class:"list"});
+  S.aid.slice().sort(function(a,b){return byDate({d:a.due},{d:b.due})}).forEach(function(x){var nmI=h("input",{type:"text","aria-label":"Item"});nmI.value=x.n;nmI.onchange=function(){x.n=nmI.value.trim()||x.n;save()};
+    var uo=["None"].concat(S.unis.map(function(u){return nm(u,"University")}));var ui=h("select",{"aria-label":"University"});uo.forEach(function(o){ui.append(h("option",{value:o==="None"?"":o},o==="None"?"Any university":o))});ui.value=x.uni||"";ui.onchange=function(){x.uni=ui.value;save()};
+    var dI=h("input",{type:"date","aria-label":"Deadline"});dI.value=x.due||"";dI.onchange=function(){x.due=dI.value;save();render()};
+    box.append(h("div",{class:"card pad list",style:"gap:10px"},h("div",{class:"row"},h("div",{style:"flex:1;min-width:180px"},nmI),sel(x,"s","",AID_ST,{bare:1,re:1}),dchip(x.due,x.s==="Submitted"||x.s==="Received")),
+      h("div",{class:"row"},h("div",{style:"flex:1;min-width:150px"},ui),h("div",{style:"min-width:150px"},dI),del("Remove",function(){S.aid=S.aid.filter(function(y){return y!==x});save();render()},"a"+x.id)),
+      (function(){var t=h("input",{type:"text",placeholder:"Notes","aria-label":"Notes"});t.value=x.note||"";t.onchange=function(){x.note=t.value;save()};return t})()))});
+  var ni=h("input",{type:"text",placeholder:"Add an aid item, like a school's own aid form","aria-label":"New aid item"});var ad=function(){var n=ni.value.trim();if(!n)return;S.aid.push({id:uid(),n:n,s:"Not started",due:"",uni:"",note:""});save();render()};ni.onkeydown=function(e){if(e.key==="Enter")ad()};
+  m.append(box,h("div",{class:"card pad row"},h("div",{style:"flex:1;min-width:200px"},ni),h("button",{onclick:ad},"Add item")));
+  var c=h("div",{class:"card pad list"},h("h2",null,"Cost comparison"),h("p",{class:"mute sm"},"Enter estimates per year from each school's own cost page. Net cost is total cost minus grants and scholarships."));
+  if(!S.unis.length)c.append(h("p",{class:"mute"},"Add universities to compare their costs."));else{
+    var rows=[],tb=h("tbody"),upd=function(){var best=1e18;rows.forEach(function(r){var t=(+r.u.cost.tuition||0)+(+r.u.cost.other||0),n=t-(+r.u.cost.grants||0);r.t.textContent="$"+t.toLocaleString();r.n.textContent="$"+n.toLocaleString();r.v=n;r.has=!!(r.u.cost.tuition||r.u.cost.other)});
+      rows.forEach(function(r){if(r.has&&r.v<best)best=r.v});rows.forEach(function(r){r.tr.className=r.has&&r.v===best&&rows.filter(function(q){return q.has}).length>1?"best":""})};
+    S.unis.forEach(function(u){var tr=h("tr"),t=h("td",{class:"num"}),n=h("td",{class:"num"});rows.push({u:u,tr:tr,t:t,n:n});
+      var cell=function(k,l){var i=h("input",{type:"number",min:"0",step:"any","aria-label":nm(u)+" "+l});i.value=u.cost[k]==null?"":u.cost[k];i.onchange=function(){u.cost[k]=i.value===""?"":Math.max(0,Number(i.value)||0);save();upd()};return h("td",null,i)};
+      tr.append(h("td",null,nm(u)),cell("tuition","tuition"),cell("other","housing, books and other"),t,cell("grants","grants and scholarships"),n);tb.append(tr)});
+    c.append(h("div",{class:"tbl"},h("table",null,h("thead",null,h("tr",null,h("th",null,"University"),h("th",null,"Tuition"),h("th",null,"Housing, books, other"),h("th",null,"Total cost"),h("th",null,"Grants and scholarships"),h("th",null,"Net cost"))),tb)),h("p",{class:"mute sm"},"The lowest net cost is highlighted once two schools have numbers."));upd()}
+  m.append(c);return m}
+
+var TF=["All","Today","This week","Upcoming","Completed"];
+function vTasks(){var m=h("div",{class:"list"});m.append(head("Tasks & Deadlines","Overdue items are red. Anything due within 7 days is amber."));
+  var nt=h("input",{type:"text",placeholder:"New task","aria-label":"New task"}),ndI=h("input",{type:"date","aria-label":"Due date"});
+  var rs=h("select",{"aria-label":"Related to"});relOptions().forEach(function(o){rs.append(h("option",{value:o==="None"?"":o},o==="None"?"No related item":o))});
+  var ps=h("select",{"aria-label":"Priority"});["High","Medium","Low"].forEach(function(o){ps.append(h("option",{value:o},o+" priority"))});ps.value="Medium";
+  var ad=function(){var t=nt.value.trim();if(!t)return;S.tasks.push({id:uid(),t:t,rel:rs.value,due:ndI.value,pri:ps.value,done:false});save();render()};nt.onkeydown=function(e){if(e.key==="Enter")ad()};
+  m.append(h("div",{class:"card pad list",style:"gap:10px"},h("div",{class:"row"},h("div",{style:"flex:1;min-width:200px"},nt),h("button",{class:"pri",onclick:ad},"Add task")),h("div",{class:"row"},h("div",{style:"min-width:160px"},ndI),h("div",{style:"flex:1;min-width:160px"},rs),h("div",{style:"min-width:150px"},ps))));
+  var chips=h("div",{class:"chips",role:"group","aria-label":"Filter tasks"});TF.forEach(function(f){var b=h("button",{class:"chip",type:"button","aria-pressed":UI.tf===f?"true":"false"},f);b.onclick=function(){UI.tf=f;render()};chips.append(b)});m.append(chips);
+  var po={High:0,Medium:1,Low:2},ls=S.tasks.filter(function(t){var n=days(t.due);if(UI.tf==="Completed")return t.done;if(t.done)return UI.tf==="All"&&false;
+    if(UI.tf==="Today")return n!==null&&n<=0;if(UI.tf==="This week")return n!==null&&n<=7;if(UI.tf==="Upcoming")return n===null||n>7;return true});
+  if(UI.tf==="All")ls=ls.concat(S.tasks.filter(function(t){return t.done}));
+  ls.sort(function(a,b){return a.done-b.done||byDate({d:a.due},{d:b.due})||po[a.pri]-po[b.pri]});
+  if(!S.tasks.length)m.append(empty("No tasks yet","Add a task above, like requesting a transcript or emailing a recommender."));else if(!ls.length)m.append(empty("Nothing here","No tasks match this filter."));
+  var box=h("div",{class:"card pad"});ls.forEach(function(t){var c=h("input",{type:"checkbox","aria-label":"Done"});c.checked=!!t.done;c.onchange=function(){t.done=c.checked;save();render()};
+    box.append(h("div",{class:"dl"},c,h("div",{class:"w"},h("b",{style:t.done?"text-decoration:line-through;color:var(--mute)":""},t.t),h("span",null,[t.rel,t.pri+" priority"].filter(Boolean).join(" · "))),t.due?dchip(t.due,t.done):h("span",{class:"pill"},"No date"),del("Delete",function(){S.tasks=S.tasks.filter(function(x){return x!==t});save();render()},"t"+t.id)))});
+  if(ls.length)m.append(box);
+  var dls=allDeadlines();if(dls.length){var dd=h("div",{class:"in"});dls.forEach(function(x){dd.append(dlRow(x))});m.append(details("alld","card",h("summary",{style:"font-weight:600"},"Every date in one list ("+dls.length+")"),h("div",{class:"body"},dd),false))}return m}
+
+function vProfile(){var m=h("div",{class:"list"});m.append(head("My Profile","Your background, saved with the rest of your tracker."));
+  var p=S.profile;m.append(h("div",{class:"card pad"},h("div",{class:"fields"},tin(p,"major","Intended major",{ph:"For example, Biology"}),tin(p,"gpa","Current GPA",{ph:"For example, 3.5"}),tin(p,"school","Current institution",{ph:"Your college"}),tin(p,"pathway","Academic pathway",{ph:"For example, Associate's degree"}),tin(p,"level","Current academic level",{ph:"For example, Second-year student"}),tin(p,"goal","Transfer goal",{ph:"For example, Fall 2028"}),ta(p,"interests","Academic interests",{rows:2,ph:"What you want to study"}),ta(p,"career","Career goal",{rows:3,ph:"What you want to do after you graduate"}))));
+  var b=h("div",{class:"card pad list"},h("h2",null,"Backup"),h("p",{class:"mute sm"},LOCAL_ONLY?"Your changes are saved automatically, but only in this browser on this device. Clearing your browser data erases them and other devices will not see them. Download a backup now and then, and restore it here or on another device.":"Your changes are saved automatically. Download a copy any time, or restore one."));
+  var out=h("div",{class:"list"});
+  var give=function(name,text){(window.claude&&claude.use?claude.use("downloads"):Promise.resolve(null)).then(function(dl){
+      if(dl)return dl.save({filename:name,data:text}).then(function(){toast("Saved "+name)});
+      var u=URL.createObjectURL(new Blob([text],{type:"text/plain"})),a=h("a",{href:u,download:name});document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast("Downloaded "+name)})
+    .catch(function(e){out.textContent="";if(e&&e.code==="declined")return;var t=h("textarea",{rows:8,readonly:true,"aria-label":"Copy this text"});t.value=text;out.append(h("p",{class:"mute sm"},"Downloads are not available here. Copy this text and save it in a file named "+name+"."),t);t.select()})};
+  b.append(h("div",{class:"row"},h("button",{onclick:function(){give("transfer-planner-"+today()+".json",JSON.stringify(S,null,2))}},"Export JSON"),h("button",{onclick:function(){give("transfer-planner-"+today()+".csv",toCsv())}},"Export CSV"),
+    (function(){var f=h("input",{type:"file",accept:".json,application/json",id:"imp",hidden:true,"aria-label":"Import JSON backup"});f.onchange=function(){var file=f.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||typeof d!=="object"||!Array.isArray(d.unis))throw 0;S=norm(d);save();render();toast("Backup restored")}catch(e){toast("That file is not a valid backup")}};r.readAsText(file)};
+      var bt=h("button",{onclick:function(){f.click()}},"Import JSON");return h("span",null,bt,f)})()),out);
+  m.append(b);
+  m.append(h("div",{class:"card pad row spread"},h("div",null,h("h3",null,"Clear everything"),h("p",{class:"mute sm"},"Deletes all universities, scholarships, essays and tasks.")),del("Clear all data",function(){S=norm(null);S.rev=Date.now();save();render();toast("All data cleared")},"clear")));
+  return m}
+function toCsv(){var rows=[["Type","Name","Related","Status","Deadline","Amount","Notes"]];
+  S.unis.forEach(function(u){rows.push(["University",nm(u),"",u.status,u.deadline,u.fee,u.notes])});S.schol.forEach(function(x){rows.push(["Scholarship",nm(x),"",x.status,x.deadline,x.amount,x.notes])});
+  S.essays.forEach(function(x){rows.push(["Essay",x.prompt,owner(x),x.s,x.due,x.limit,x.note])});S.docs.forEach(function(x){rows.push(["Document",x.n,x.uses.map(function(i){var u=S.unis.filter(function(y){return y.id===i})[0];return u?nm(u):""}).join("; "),x.s,"","",""])});
+  S.aid.forEach(function(x){rows.push(["Financial aid",x.n,x.uni,x.s,x.due,"",x.note])});S.tasks.forEach(function(x){rows.push(["Task",x.t,x.rel,x.done?"Done":"Open",x.due,"",x.pri])});
+  S.unis.forEach(function(u){var c=u.cost||{};if(c.tuition||c.other||c.grants)rows.push(["Cost estimate",nm(u),"","","",(+c.tuition||0)+(+c.other||0)-(+c.grants||0),"Tuition "+(c.tuition||0)+", other "+(c.other||0)+", grants "+(c.grants||0)])});
+  return rows.map(function(r){return r.map(function(v){v=v==null?"":String(v);if(/^[=+\-@]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}).join(",")}).join("\r\n")}
+
+var VIEWS={overview:vOverview,universities:vUnis,scholarships:vSchol,documents:vDocs,essays:vEssays,aid:vAid,tasks:vTasks,profile:vProfile};
+function render(){var y=window.scrollY,v=location.hash.slice(1);view=VIEWS[v]?v:"overview";
+  var nav=document.getElementById("nav");nav.textContent="";nav.append(h("div",{class:"brand"},h("i"),"Transfer Planner"));
+  var od=overdueCount();NAV.forEach(function(n){var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");var p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",n[2]);svg.append(p);
+    nav.append(h("a",{href:"#"+n[0],"aria-current":n[0]===view?"page":null},svg,n[1],n[0]==="tasks"&&od?h("span",{class:"badge"},od):null))});
+  nav.append(h("div",{class:"saved",id:"saved"},loaded||!ref?(LOCAL_ONLY?"Saved on this device":"Saved"):"Loading…"));
+  var main=document.getElementById("main");main.textContent="";armed=null;
+  if(ref&&!loaded){main.append(h("p",{class:"mute"},"Loading your tracker…"))}else main.append(VIEWS[view]());
+  window.scrollTo(0,y)}
+window.addEventListener("hashchange",function(){window.scrollTo(0,0);render()});
+
+/* ---------- boot ---------- */
+var dl=document.getElementById("schools");SCHOOLS.forEach(function(n){dl.append(h("option",{value:n}))});
+function adopt(d){var n=norm(d);if(canon(n)!==canon(S)){S=n;try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}return true}return false}
+function boot(db){ref=db.doc("tracker-planner/main");var first=true;var fail=setTimeout(function(){if(!loaded){loaded=true;ref=null;render()}},6000);
+  ref.onSnapshot(function(snap){clearTimeout(fail);var el=document.activeElement,typing=el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)&&el.id!=="newuni";
+    if(!snap.exists){if(!loaded){loaded=true;if(S.rev>0){flush()}render()}return}
+    var d=clone(snap.data());if(first){first=false;loaded=true;if((+d.rev||0)>=S.rev){adopt(d)}else{flush()}render();return}
+    if(dirty)return;if(adopt(d)&&!typing)render()},function(){clearTimeout(fail);if(!loaded){loaded=true;ref=null;render()}})}
+render();
+if(window.claude&&claude.use){claude.use("db").then(function(db){if(db)boot(db);else{loaded=true;render()}}).catch(function(){loaded=true;render()})}else loaded=true;
+</script>
+</body>
+</html>
