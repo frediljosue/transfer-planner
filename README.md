@@ -13,6 +13,7 @@ A free planner for college transfer applications. Keep your universities, schola
 - **Essays:** every essay for every school and scholarship in one view, with prompt, word limit, a live word count, status and deadline.
 - **Financial Aid:** FAFSA, CSS Profile and other aid items, plus a cost comparison that shows net cost per year.
 - **Tasks and Deadlines:** filters for Today, This week, Upcoming and Completed. Overdue items turn red and items due within 7 days turn amber.
+- **Calendar:** a month view of every deadline, with one click Add to Google Calendar links and a downloadable calendar file for your phone, Google Calendar, Apple Calendar or Outlook.
 - **My Profile:** your major, GPA, transfer goal and career goal.
 
 ## Your data stays on your device
